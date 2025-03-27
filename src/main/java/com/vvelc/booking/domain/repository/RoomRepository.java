@@ -2,7 +2,6 @@ package com.vvelc.booking.domain.repository;
 
 import com.vvelc.booking.domain.model.Room;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -12,5 +11,5 @@ public interface RoomRepository {
     List<Room> findAll();
     Optional<Room> findById(UUID id);
     // TODO: implement find available rooms for a given date range
-    boolean deleteById(UUID id);
+    void deleteById(UUID id);
 }

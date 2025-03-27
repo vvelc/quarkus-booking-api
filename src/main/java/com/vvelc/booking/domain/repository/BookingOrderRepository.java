@@ -2,7 +2,6 @@ package com.vvelc.booking.domain.repository;
 
 import com.vvelc.booking.domain.model.BookingOrder;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
