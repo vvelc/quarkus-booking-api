@@ -2,9 +2,7 @@
 package com.vvelc.booking.infrastructure.persistence.mapper;
 
 import com.vvelc.booking.domain.common.BookingStatus;
-import com.vvelc.booking.domain.model.Booking;
 import com.vvelc.booking.domain.model.BookingOrder;
-import com.vvelc.booking.infrastructure.persistence.entity.BookingEntity;
 import com.vvelc.booking.infrastructure.persistence.entity.BookingOrderEntity;
 
 public class BookingOrderMapper {

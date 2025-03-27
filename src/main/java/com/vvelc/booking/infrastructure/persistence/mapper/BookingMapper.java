@@ -1,6 +1,5 @@
 package com.vvelc.booking.infrastructure.persistence.mapper;
 
-import com.vvelc.booking.domain.common.BookingStatus;
 import com.vvelc.booking.domain.model.Booking;
 import com.vvelc.booking.infrastructure.persistence.entity.BookingEntity;
 
