@@ -4,6 +4,7 @@ import com.vvelc.booking.domain.model.Room;
 import com.vvelc.booking.domain.repository.RoomRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 
@@ -16,7 +17,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
 
-    @Counted(name = "rooms_created", description = "Total habitaciones creadas", monotonic = true)
+    @Counted(name = "rooms_created", description = "Total habitaciones creadas")
     public UUID createRoom(String number) {
         UUID roomId = UUID.randomUUID();
 
