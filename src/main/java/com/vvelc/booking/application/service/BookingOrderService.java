@@ -7,6 +7,9 @@ import com.vvelc.booking.domain.repository.BookingOrderRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 
@@ -23,6 +26,8 @@ public class BookingOrderService {
 
     private final BookingOrderRepository bookingOrderRepository;
 
+    @Counted(name = "booking_order_created", description = "Total booking orders creadas")
+    @Timed(name = "booking_order_creation_time", description = "Tiempo en crear una booking order", unit = MetricUnits.MILLISECONDS)
     public UUID createBookingOrder(UUID roomId, String customerName, LocalDate checkIn, LocalDate checkOut) {
         UUID bookingOrderId = UUID.randomUUID();
 
@@ -48,6 +53,7 @@ public class BookingOrderService {
         return bookingOrderId;
     }
 
+    @Timed(name = "booking_order_fetch_all_time", description = "Tiempo en obtener todas las booking orders", unit = MetricUnits.MILLISECONDS)
     public List<BookingOrder> getAllBookingOrders() {
         return bookingOrderRepository.findAll();
     }
