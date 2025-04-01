@@ -1,62 +1,129 @@
-# quarkus-booking-api
+# 🏨 Booking API
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Una API de reservas de habitaciones diseñada como prueba técnica personal. Esta aplicación simula un sistema real de gestión de reservas para hoteles, con enfoque en buenas prácticas, principios de arquitectura moderna y capacidades de observabilidad y mensajería.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+---
 
-## Running the application in dev mode
+## ✨ ¿Qué problema resuelve?
 
-You can run your application in dev mode that enables live coding using:
+El sistema permite a un hotel llevar control de:
 
-```shell script
-./mvnw quarkus:dev
+- **Habitaciones disponibles**
+- **Órdenes de reserva entrantes (solicitudes aún no confirmadas)**
+- **Reservas confirmadas**
+- **Prevención de conflictos por fechas superpuestas**
+- **Emisión de eventos para procesamiento asíncrono**
+
+---
+
+## ⚙️ Arquitectura y diseño
+
+Esta API fue desarrollada siguiendo una arquitectura **limpia (Clean Architecture)**, aplicando los principios de **DDD**, **event-driven design** y **microservicios desacoplados**.
+
+### 🧱 Capas principales
+
+- **Dominio**: Entidades, repositorios, eventos de dominio y excepciones
+- **Aplicación**: Servicios de negocio que orquestan lógica de dominio
+- **Infraestructura**: Repositorios, serializadores, excepciones técnicas y emisores Kafka
+- **Entrypoints**: Controladores REST
+
+### 📜 Excepciones y jerarquía
+
+```mermaid
+classDiagram
+    class PublicException
+    class NotFoundException
+    class ConflictException
+    class BadRequestException
+    class BookingOrderNotFoundException
+    class BookingNotFoundException
+    class RoomNotFoundException
+    class OverlappingBookingException
+    class InvalidBookingDatesException
+
+    PublicException <|-- NotFoundException
+    PublicException <|-- ConflictException
+    PublicException <|-- BadRequestException
+
+    NotFoundException <|-- BookingOrderNotFoundException
+    NotFoundException <|-- BookingNotFoundException
+    NotFoundException <|-- RoomNotFoundException
+
+    ConflictException <|-- OverlappingBookingException
+    BadRequestException <|-- InvalidBookingDatesException
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## 🔌 Endpoints
+### 📘 Swagger UI
+Disponible en: http://localhost:8080/q/swagger-ui
 
-## Packaging and running the application
+### 🛏️ Habitaciones
+| Método | Ruta        | Descripción                |
+|--------|-------------|----------------------------|
+| POST   | /rooms      | Crear una nueva habitación |
+| GET    | /rooms      | Listar habitaciones        |
+| GET    | /rooms/{id} | Obtener habitación por id  |
 
-The application can be packaged using:
+### 📦 Órdenes de reserva (no confirmadas)
+| Método | Ruta                 | Descripción                |
+|--------|----------------------|----------------------------|
+| POST   | /booking-orders      | Crear una orden de reserva |
+| GET    | /booking-orders      | Listar órdenes de reserva  |
+| GET    | /booking-orders/{id} | Obtener orden por ID       |
 
-```shell script
-./mvnw package
+### 📅 Reservas confirmadas
+| Método | Ruta           | Descripción                |
+|--------|----------------|----------------------------|
+| GET    | /bookings      | Listar reservas            |
+| GET    | /bookings/{id} | Obtener una reserva por id |
+
+## 🚀 Cómo ejecutar el proyecto
+### ✅ Requisitos
+- Docker & Docker Compose
+- JDK 17+
+- Maven
+
+### 📦 Compilar el proyecto
+``` bash
+./mvnw clean package
+````
+### 🐳 Levantar entorno completo (API + Kafka + Prometheus + Grafana)
+``` bash
+docker compose up
 ```
+La API estará disponible en http://localhost:8080
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+## 📈 Observabilidad
+### 🔎 Prometheus
+- Endpoint de métricas: http://localhost:8080/q/metrics
+- Interfaz Prometheus: http://localhost:9090
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+### 📊 Grafana
+- Interfaz: http://localhost:3000
+- Usuario/contraseña: admin / admin
+- Dashboards: incluye uno con métricas de Quarkus y personalizadas
 
-If you want to build an _über-jar_, execute the following command:
+## 🎯 Métricas personalizadas
+Todos los servicios de negocio (RoomService, BookingService, etc.) incluyen anotaciones con:
+- @Counted: número de ejecuciones
+- @Timed: tiempo de ejecución
+- Con nombre y descripción clara (ej: booking_confirmed_total)
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
-```
+## 🧪 Tests
+- Todos los servicios están cubiertos con pruebas unitarias usando Mockito (@InjectMock)
+- No se mockea Kafka directamente, ya que se separó la responsabilidad de emitir eventos
+- Validaciones realizadas con Bean Validation (@Valid, @NotNull, @Size, etc.)
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+## 🧱 Tecnologías utilizadas
+- Quarkus
+- Kafka (Redpanda Console)
+- JPA con Hibernate
+- Micrometer (métricas Prometheus)
+- Swagger/OpenAPI
+- Grafana y Prometheus
+- Docker & Docker Compose
 
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/quarkus-booking-api-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+## 🧠 Consideraciones finales
+- Diseñado como prueba técnica personal con enfoque profesional
+- Fuerte separación de capas y responsabilidades
+- Basado en buenas prácticas reales de proyectos empresariales
