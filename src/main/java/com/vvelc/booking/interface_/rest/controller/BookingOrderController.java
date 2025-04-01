@@ -1,9 +1,12 @@
 package com.vvelc.booking.interface_.rest.controller;
 
 import com.vvelc.booking.application.service.BookingOrderService;
+import com.vvelc.booking.domain.model.BookingOrder;
 import com.vvelc.booking.interface_.rest.dto.BookingOrderRequest;
 import com.vvelc.booking.interface_.rest.dto.BookingOrderResponse;
+import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -37,7 +40,9 @@ public class BookingOrderController {
             )
     )
     @APIResponse(responseCode = "404", description = "No se encontró la orden luego de crearla")
-    public Response createBookingOrder(BookingOrderRequest request) {
+    public Response createBookingOrder(@Valid BookingOrderRequest request) {
+        Log.info("Received booking order creation request for room: " + request.roomId());
+
         UUID id = bookingOrderService.createBookingOrder(
                 request.roomId(),
                 request.customerName(),
@@ -45,7 +50,9 @@ public class BookingOrderController {
                 request.checkOut()
         );
 
-        return Response.ok(bookingOrderService.getBookingOrderById(id))
+        BookingOrder result = bookingOrderService.getBookingOrderById(id);
+
+        return Response.ok(result)
                 .build();
     }
 
@@ -57,6 +64,8 @@ public class BookingOrderController {
     ))
     @APIResponse(responseCode = "404", description = "Orden no encontrada")
     public Response getById(@PathParam("id") UUID id) {
+        Log.info("Received request to get booking order by ID: " + id);
+
         return Response.ok(bookingOrderService.getBookingOrderById(id))
                 .build();
     }
@@ -67,6 +76,8 @@ public class BookingOrderController {
             schema = @Schema(type = SchemaType.ARRAY, implementation = BookingOrderResponse.class)
     ))
     public Response getAll() {
+        Log.info("Received request to get all booking orders");
+
         return Response.ok(bookingOrderService.getAllBookingOrders())
                 .build();
     }

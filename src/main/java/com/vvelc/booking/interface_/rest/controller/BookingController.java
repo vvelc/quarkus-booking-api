@@ -2,6 +2,7 @@ package com.vvelc.booking.interface_.rest.controller;
 
 import com.vvelc.booking.application.service.BookingService;
 import com.vvelc.booking.interface_.rest.dto.BookingResponse;
+import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -30,6 +31,7 @@ public class BookingController {
             schema = @Schema(type = SchemaType.ARRAY, implementation = BookingResponse.class)
     ))
     public Response getAll() {
+        Log.info("Received request to get all bookings");
         return Response.ok(bookingService.getAllBookings())
                 .build();
     }
@@ -42,6 +44,7 @@ public class BookingController {
     ))
     @APIResponse(responseCode = "404", description = "Booking no encontrado")
     public Response getById(@PathParam("id") UUID id) {
+        Log.info("Received request to get booking by ID: " + id);
         return Response.ok(bookingService.getBookingById(id))
                 .build();
     }

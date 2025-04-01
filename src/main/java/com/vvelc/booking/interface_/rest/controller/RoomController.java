@@ -3,7 +3,9 @@ package com.vvelc.booking.interface_.rest.controller;
 import com.vvelc.booking.application.service.RoomService;
 import com.vvelc.booking.interface_.rest.dto.RoomRequest;
 import com.vvelc.booking.interface_.rest.dto.RoomResponse;
+import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -31,7 +33,8 @@ public class RoomController {
             schema = @Schema(implementation = RoomResponse.class)
     ))
     @APIResponse(responseCode = "404", description = "Habitación no encontrada luego de crearla")
-    public Response create(RoomRequest request) {
+    public Response create(@Valid RoomRequest request) {
+        Log.info("Received room creation request for room number: " + request.number());
         UUID id = roomService.createRoom(request.number());
 
         return Response.ok(roomService.getRoomById(id))
@@ -46,6 +49,7 @@ public class RoomController {
     ))
     @APIResponse(responseCode = "404", description = "Habitación no encontrada")
     public Response getById(@PathParam("id") UUID id) {
+        Log.info("Received request to get room by ID: " + id);
         return Response.ok(roomService.getRoomById(id))
                 .build();
     }
@@ -56,6 +60,7 @@ public class RoomController {
             schema = @Schema(type = SchemaType.ARRAY, implementation = RoomResponse.class)
     ))
     public Response getAll() {
+        Log.info("Received request to get all rooms");
         return Response.ok(roomService.getAllRooms())
                 .build();
     }
