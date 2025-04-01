@@ -1,12 +1,14 @@
 package com.vvelc.booking.application.service;
 
+import com.vvelc.booking.domain.exception.RoomNotFoundException;
 import com.vvelc.booking.domain.model.Room;
 import com.vvelc.booking.domain.repository.RoomRepository;
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Timed;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +19,8 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
 
-    @Counted(name = "rooms_created", description = "Total habitaciones creadas")
+    @Transactional
+    @Counted(value = "rooms.created", description = "Total habitaciones creadas")
     public UUID createRoom(String number) {
         UUID roomId = UUID.randomUUID();
 
@@ -26,22 +29,39 @@ public class RoomService {
                 number
         );
 
+        Log.info("Creating new room with ID: " + roomId);
+
         roomRepository.save(room);
+
+        Log.info("Room created successfully with ID: " + room.getId());
 
         return roomId;
     }
 
-    @Timed(name = "room_fetch_all_time", description = "Tiempo en obtener todas las habitaciones", unit = MetricUnits.MILLISECONDS)
+    @Transactional
+    @Timed(value = "room.fetch.all.time", description = "Tiempo en obtener todas las habitaciones")
     public List<Room> getAllRooms() {
+        Log.info("Fetching all rooms");
+
         return roomRepository.findAll();
     }
 
+    @Transactional
     public Room getRoomById(UUID roomId) {
         return roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("Room not found"));
+                .map(room -> {
+                    Log.info("Room found: " + room.getId());
+                    return room;
+                })
+                .orElseThrow(() -> new RoomNotFoundException("Room not found: " + roomId));
     }
 
+    @Transactional
     public void deleteRoom(UUID roomId) {
+        Log.info("Deleting room with ID: " + roomId);
+
         roomRepository.deleteById(roomId);
+
+        Log.info("Room deleted successfully with ID: " + roomId);
     }
 }
