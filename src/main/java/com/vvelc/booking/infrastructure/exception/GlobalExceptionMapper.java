@@ -15,8 +15,6 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable exception) {
-        LOG.error("Unhandled exception", exception);
-
         if (exception instanceof PublicException publicException) {
             return Response.status(publicException.getStatusCode())
                     .entity(new ErrorResponse(publicException.getClass().getSimpleName(), publicException.getMessage()))
@@ -28,6 +26,8 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
                     .entity(new ErrorResponse("ClientError", exception.getMessage()))
                     .build();
         }
+
+        LOG.error("Unhandled exception", exception);
 
         boolean isDev = "dev".equals(System.getProperty("quarkus.profile", "prod"));
 
