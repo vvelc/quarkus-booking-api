@@ -7,7 +7,6 @@ import com.vvelc.booking.infrastructure.persistence.mapper.RoomMapper;
 import com.vvelc.booking.infrastructure.persistence.panache.RoomPanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,6 @@ public class RoomRepositoryImpl implements RoomRepository {
     RoomPanacheRepository roomPanacheRepository;
 
     @Override
-    @Transactional
     public void save(Room room) {
         RoomEntity roomEntity = RoomMapper.toEntity(room);
         roomPanacheRepository.persist(roomEntity);
@@ -30,7 +28,7 @@ public class RoomRepositoryImpl implements RoomRepository {
     public List<Room> findAll() {
         return roomPanacheRepository.listAll().stream()
                 .map(RoomMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -40,7 +38,6 @@ public class RoomRepositoryImpl implements RoomRepository {
     }
 
     @Override
-    @Transactional
     public void deleteById(UUID id) {
         roomPanacheRepository.deleteById(id);
     }

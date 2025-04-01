@@ -7,7 +7,6 @@ import com.vvelc.booking.infrastructure.persistence.mapper.BookingMapper;
 import com.vvelc.booking.infrastructure.persistence.panache.BookingPanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,7 +21,6 @@ public class BookingRepositoryImpl implements BookingRepository {
     BookingPanacheRepository bookingPanacheRepository;
 
     @Override
-    @Transactional
     public void save(Booking booking) {
         BookingEntity bookingEntity = BookingMapper.toEntity(booking);
         bookingPanacheRepository.persist(bookingEntity);
@@ -38,7 +36,7 @@ public class BookingRepositoryImpl implements BookingRepository {
     public List<Booking> findAll() {
         return bookingPanacheRepository.listAll().stream()
                 .map(BookingMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -51,11 +49,10 @@ public class BookingRepositoryImpl implements BookingRepository {
     public List<Booking> findByRoomId(UUID roomId) {
         return bookingPanacheRepository.find("roomId", roomId).stream()
                 .map(BookingMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
-    @Transactional
     public boolean deleteById(UUID id) {
         return bookingPanacheRepository.deleteById(id);
     }

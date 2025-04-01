@@ -8,7 +8,6 @@ import com.vvelc.booking.infrastructure.persistence.mapper.BookingOrderMapper;
 import com.vvelc.booking.infrastructure.persistence.panache.BookingOrderPanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +21,6 @@ public class BookingOrderRepositoryImpl implements BookingOrderRepository {
     BookingOrderPanacheRepository bookingOrderPanacheRepository;
 
     @Override
-    @Transactional
     public void save(BookingOrder order) {
         BookingOrderEntity entity = BookingOrderMapper.toEntity(order);
         bookingOrderPanacheRepository.persist(entity);
@@ -32,7 +30,7 @@ public class BookingOrderRepositoryImpl implements BookingOrderRepository {
     public List<BookingOrder> findAll() {
         return bookingOrderPanacheRepository.findAll().list().stream()
                 .map(BookingOrderMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -45,11 +43,10 @@ public class BookingOrderRepositoryImpl implements BookingOrderRepository {
     public List<BookingOrder> findByRoomId(UUID roomId) {
         return bookingOrderPanacheRepository.find("roomId", roomId).list().stream()
                 .map(BookingOrderMapper::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
-    @Transactional
     public void updateStatus(UUID id, String status) {
         bookingOrderPanacheRepository.findByIdOptional(id).ifPresent(entity ->
                 entity.setStatus(BookingStatus.valueOf(status))
@@ -57,7 +54,6 @@ public class BookingOrderRepositoryImpl implements BookingOrderRepository {
     }
 
     @Override
-    @Transactional
     public boolean deleteById(UUID id) {
         return bookingOrderPanacheRepository.deleteById(id);
     }
